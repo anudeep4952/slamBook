@@ -1,13 +1,9 @@
 const express= require('express');
 
+
 const app=express();
 
 const mongoose=require('mongoose');
-
-
- 
- 
-// parse various different custom JSON types as JSON
 
 const authenicationRouter=require('./routes/authenicationRoutes')
 
@@ -39,7 +35,7 @@ con.on('open', () => {
         console.log('connected...')
     })    
 
-app.use('/authenication',authenicationRouter)
+app.use('/register/',authenicationRouter)
 app.use('/slam',slamRouter)
 
 app.listen(8081,()=>{
