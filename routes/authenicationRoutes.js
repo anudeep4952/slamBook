@@ -15,6 +15,7 @@ let transporter = nodemailer.createTransport({
     }
 });
 
+
 authenicationRouter.get('/',async(req,res)=>{
     try{
         const users = await user.find()
@@ -23,8 +24,38 @@ authenicationRouter.get('/',async(req,res)=>{
      res.send('Error ' + err)
  }
 })
+
+authenicationRouter.get('/deleteAll',async(req,res)=>{
+    try{
+        const users = await user.deleteMany({})
+        res.json(users)
+ }catch(err){
+     res.send('Error ' + err)
+ }
+})
+
+
 ////////////////////////////////////////// REGISTER //////////////////////////////////////////////////////////////////
-authenicationRouter.post('/', async(req,res) => {
+authenicationRouter.post('/', async(req,res,next) => {
+
+
+    if (await checkusername(req.body.username))
+   { 
+       res.json({
+        "status":"error",
+        "message":"username already exits"
+    })
+    
+   }
+    else if (await checkemail(req.body.mailId))
+    {   res.json({
+        "status":"error",
+        "message":"maild already registered"
+    })
+    }
+
+    else{
+
     const users= new user({
         username: req.body.username,
         mailId: req.body.mailId,
@@ -32,13 +63,14 @@ authenicationRouter.post('/', async(req,res) => {
     })
     try{
         const a1 =  await users.save() 
-        await sendMail(req.body.mailId,a1['id']);
+       // await sendMail(req.body.mailId,a1['id']);
         res.json({
             "status":"success"
         })
 
     }catch(err){
-        res.send(err)
+        next(err)
+    }
     }
 })
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,7 +81,7 @@ authenicationRouter.post('/', async(req,res) => {
 authenicationRouter.get('/verify/:username/:linkId',async(req,res)=>{
    const username = req.params.username
    const linkId=req.params.linkId
-   await activationLinksSchema.find({activationLink:linkId,username:username},(err,usr)=>{
+   const link=await activationLinksSchema.find({activationLink:linkId,username:username},(err,usr)=>{
        if (err)
         res.send('error')
         else
@@ -57,10 +89,18 @@ authenicationRouter.get('/verify/:username/:linkId',async(req,res)=>{
         {
             if(usr.length==1){
                 console.log(usr[0]['username'])
-                    user.findByIdAndUpdate(usr[0]['username'],{isActive:true},{new: true}, (err, model)=>{
-                       res.send(model)
+                    user.findByIdAndUpdate(usr[0]['username'],{isActive:true},{new: true},async(err, model)=>{
+                        await activationLinksSchema.findByIdAndDelete(link['id'])
+                        res.json({
+                            "status":"success"
+                        })
                    })
-            }
+                }
+            else       
+            res.json({
+                "status":"error"
+            })
+            
         }
    })
 
@@ -105,6 +145,30 @@ async function sendMail(mailId,username){
     
 }
 
-module.exports=authenicationRouter;
 
+async function checkusername (name){
+  try{var x=await user.find({username:name},(err,doc)=>{   
+     if(err)
+     next(err);
+ })
+ return x.length!=0
+ }catch(err){
+    next(err);
+ }
+}
+
+async function checkemail (email){
+  try{
+    var x=await user.find({mailId:email},(err,doc)=>{
+        if(err)
+        next(err);
+    })
+   return x.length!=0
+}catch(err){
+    next(err);
+}
+}
+
+process.on('warning', e => console.warn(e.stack));
+module.exports=authenicationRouter;
 

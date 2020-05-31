@@ -9,6 +9,7 @@ const authenicationRouter=require('./routes/authenicationRoutes')
 
 const slamRouter=require('./routes/slamRoutes')
 
+const loginRouter=require('./routes/loginRoutes')
 
  
 app.use(express.json())
@@ -36,7 +37,8 @@ con.on('open', () => {
     })    
 
 app.use('/register/',authenicationRouter)
-app.use('/slam',slamRouter)
+app.use('/slam/:userId',loginRouter.auth,slamRouter)
+app.use('/login/',loginRouter.router)
 
 app.listen(8081,()=>{
  console.log('server started');
