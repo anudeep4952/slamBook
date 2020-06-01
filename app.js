@@ -13,6 +13,8 @@ const authenicationRouter=require('./routes/authenicationRoutes')
 
 const slamRouter=require('./routes/slamRoutes')
 
+const linkRouter=require('./routes/linkRoutes')
+
 
  
 app.use(express.json())
@@ -41,6 +43,7 @@ con.on('open', () => {
 
 app.use('/authenication',authenicationRouter)
 app.use('/slam',slamRouter)
+app.use('/link',linkRouter)
 
 app.listen(8081,()=>{
  console.log('server started');
