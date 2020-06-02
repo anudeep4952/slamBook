@@ -1,13 +1,9 @@
 const express= require('express');
 
+
 const app=express();
 
 const mongoose=require('mongoose');
-
-
- 
- 
-// parse various different custom JSON types as JSON
 
 const authenicationRouter=require('./routes/authenicationRoutes')
 
@@ -15,6 +11,7 @@ const slamRouter=require('./routes/slamRoutes')
 
 const linkRouter=require('./routes/linkRoutes')
 
+const loginRouter=require('./routes/loginRoutes')
 
  
 app.use(express.json())
@@ -44,6 +41,9 @@ con.on('open', () => {
 app.use('/authenication',authenicationRouter)
 app.use('/slam',slamRouter)
 app.use('/link',linkRouter)
+app.use('/register/',authenicationRouter)
+app.use('/slam/:userId',loginRouter.auth,slamRouter)
+app.use('/login/',loginRouter.router)
 
 app.listen(8081,()=>{
  console.log('server started');
