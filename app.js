@@ -1,5 +1,6 @@
 const express= require('express');
-
+const cors=require('cors');
+//var path=require('path');
 
 const app=express();
 
@@ -21,7 +22,7 @@ require('dotenv').config()
 
 const databaseUrl= process.env.DataBaseConnection;
 
-mongoose.connect(databaseUrl, 
+mongoose.connect("mongodb://localhost:27017/SlamRecords1", 
     {useNewUrlParser: true ,
     useUnifiedTopology: true},
     (err)=>{
@@ -38,6 +39,20 @@ con.on('open', () => {
         console.log('connected...')
     })    
 
+    
+var p=function(req, res, next){
+    res.header('Access-Control-Allow-Origin','*');
+    res.header('Access-Control-Allow-Methods','GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers','Content-Type');
+
+}
+
+
+
+app.use(p)
+app.use(cors())
+
+app.get('/hi',(req,res)=>{console.log("gfhsf");res.send("hiii");})
 app.use('/authenication',authenicationRouter)
 app.use('/slam',slamRouter)
 app.use('/link',linkRouter)
@@ -45,7 +60,7 @@ app.use('/register/',authenicationRouter)
 app.use('/slam/:userId',loginRouter.auth,slamRouter)
 app.use('/login/',loginRouter.router)
 
-app.listen(8081,()=>{
+app.listen(3000,()=>{
  console.log('server started');
 });
 

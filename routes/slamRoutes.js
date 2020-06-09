@@ -6,7 +6,7 @@ const slam=require('../models/slamModel')
 
 slamRouter.get('/:userid',async(req,res)=>{
     try{
-        const slams = await slam.find({userid:req.params.userid})
+        console.log("gfhsf");        const slams = await slam.find({userid:req.params.userid})
         res.json(slams)
  }catch(err){
      res.send('Error' + err)
@@ -30,14 +30,12 @@ slamRouter.post('/:userid/:id', async(req,res) => {
         que11:req.body.que11,
         que12:req.body.que12     
         })
+
     try{
         const a1 =  await slams.save() 
         link.findByIdAndRemove(req.params.id,(err,link)=>{
-            if(link==null) {res.json({
-                "status":"fail"
-            })} else res.json({
-                "status":"success"
-            })
+            if(link==null) {res.send(null)} 
+            else res.send(a1)
         })
         
     }catch(err){
@@ -48,13 +46,9 @@ slamRouter.post('/:userid/:id', async(req,res) => {
 slamRouter.delete('/:userid/:id',async(req,res)=>{
     slam.findByIdAndRemove(req.params.id,(err,slam)=>{
         if(slam==null){
-            res.json({
-                "status":"fail"
-            })
+            res.send(0)
     
-    } else {res.json({
-        "status":"success"
-    })}
+    } else {res.send(1)}
 
     })
 })
